@@ -1,0 +1,25 @@
+# Spartan Design Goals
+
+## Goals
+
+Above all else, spartan strives to achieve the following...
+
+* Simple - it should fit your head and avoid complexity pitfalls.
+* Familiar - it should be compatible with existing stacks and libraries.
+* Fun - it should be enjoyable to use and build content for.
+* Inspiring - it should encourage new ideas for UI and client/server design.
+
+## Non-Goals
+
+The following are explicit "non-goals" for spartan. This is not to say that they aren't valid pursuits on their own merit. However, in an attempt to stay grounded, spartan does not attempt to solve them directly.
+
+* Privacy
+* Security
+* Speed
+* Efficiency
+* Accessibility
+* Minimalism
+* Modernization
+* Fixing the Web
+* Free Software
+* The Unix Philosophy

@@ -1,0 +1,45 @@
+# 💪 The Spartan Protocol Homepage
+
+```
+          />_________S_P_A_R_T_A_N_://_________
+ [########[]___________________________________>
+          \>        Established 650 BC.
+```
+
+spartan:// is a client-to-server protocol designed for hobbyists. Spartan draws on ideas from gemini, gopher, and http to create something new, yet familiar. It strives to be simple, fun, and inspiring.
+
+Spartan sends ASCII-encoded, plaintext requests over TCP. Arbitrary text and binary files are supported for both upload and download. Like gemini, the default hypertext document in spartan is text/gemini. A special line type ("=:") is used to prompt for input. Spartan has four status codes: "success", "redirect", "server error", and "client error".
+
+Spartan is not opinionated about how or what you use it for, only that you have fun doing so!
+
+=> specification.gmi spartan protocol - specification
+=> design-goals.gmi spartan protocol - design goals
+=> examples.gmi spartan protocol - examples
+=> spartan_server.py spartan protocol - reference server
+=> spartan_client.py spartan protocol - reference client
+
+Comparison: gemini:// vs. spartan://
+
+```
+                       gemini       spartan
+                       ------       -------
+transport              TCP + TLS    TCP
+request structure      full URL     hostname & path
+request encoding       utf-8        us-ascii
+status codes           18           4
+document type          text/gemini  text/gemini
+input prompt           1x status    "=:" prompt line
+
+data upload            limited      yes
+mimetypes              yes          yes
+virtual hosting        yes          yes
+same-site redirects    yes          yes
+cross-site redirects   yes          no
+proxy requests         yes          no
+"lang" parameter       yes          no
+```
+
+Dive in!
+=> spartan://mozz.us
+
+For inquiries, contact michael@mozz.us

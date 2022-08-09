@@ -1,0 +1,41 @@
+# Spartan Protocol Examples
+
+## Download a file
+
+```
+Client  : example.com /files/lotr.txt 0
+Server  : 2 text/plain; charset=utf-8
+          In a hole in the ground there lived a hobbit...
+```
+
+## Post to a message board
+
+```
+Client  : example.com /guestbook/submit 12
+          Hello world!
+Server  : 2 text/gemini
+          Your message has been submitted!
+```
+
+## Upload a binary file
+
+```
+Client  : example.com /upload/africa.mp3 3145728
+          <binary data stream...>
+Server  : 2 text/gemini
+          Your file has been uploaded!
+```
+
+## Return a server redirect
+
+```
+Client  : example.com /old_location/ 0
+Server  : 3 /new_location/
+```
+
+## Return an error message
+
+```
+Client  : example.com /files/meaning_of_life.txt 0
+Server  : 4 File "/files/meaning_of_life.txt" not found
+```

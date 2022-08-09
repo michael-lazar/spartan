@@ -1,0 +1,207 @@
+# The Spartan Protocol Specification
+
+Last updated 2021-03-24
+
+## 1 Overview
+
+spartan:// is a client-to-server protocol designed for hobbyists. Spartan draws on ideas from gemini, gopher, and http to create something new, yet familiar. It strives to be simple, fun, and inspiring.
+
+Spartan sends ASCII-encoded, plaintext requests over TCP. Arbitrary text and binary files are supported for both upload and download. Like gemini, the default hypertext document in spartan is text/gemini. A special line type ("=:") is used to prompt for input. Spartan has four status codes: "success", "redirect", "server error", and "client error".
+
+Spartan is not opinionated about how or what you use it for, only that you have fun doing so!
+
+## 2 Requests
+
+A spartan request is a single ASCII-encoded request line followed by an optional data block.
+
+```
+request      = request-line [data-block]
+request-line = host SP path-absolute SP content-length CRLF
+```
+
+The host component specifies the host of the server that the request is being sent to. The port number should not be included in the host component. Hosts that contain non-ASCII characters (IDNs) should be converted to punycode.
+
+The path component specifies the resource that is being requested. It must be absolute and begin with a "/" character.
+
+The data block can be used by the client to upload arbitrary data to the server. The content-length component specifies the length, in bytes, of the data block. A content length of "0" means that no extra data will be attached to the request.
+
+The format of uploaded data is left up to the server to define based on surrounding context. It might contain plain text, binary data, or a mixed encoding.
+
+### 2.1 Reference: example spartan requests
+
+```
+# Download a text file
+example.com /files/about.txt 0
+
+# Post to a message board
+example.com /guestbook/submit 12
+Hello world!
+
+# Upload an audio file
+example.com /upload/africa.mp3 3145728
+<binary data stream...>
+```
+
+## 3 Responses
+
+A spartan response is single ASCII-encoded status line followed by an optional response body.
+
+Spartan responses use single-digit status codes to indicate success or failure.
+
+```
+reply             = success / redirect / client-error / server-error
+
+success           = '2' SP mimetype      CRLF body
+redirect          = '3' SP path-absolute CRLF
+client-error      = '4' SP errormsg      CRLF
+server-error      = '5' SP errormsg      CRLF
+```
+
+### "2": Success
+
+A status of "2" indicates that the resource was successfully received, understood, and accepted. The mimetype should contain the MIME of the response document. It may also include a charset parameter to specify an encoding for the document. The default encoding for "text/*" documents should be assumed to be UTF-8.
+
+### "3": Redirect
+
+A status of "3" indicates that the resource is located at a different location. The client should make a new request to the indicated absolute path. Redirects can only be specified to the same host as the original request.
+
+### "4": Client Error
+
+A status of "4" indicates that the request contains bad syntax or cannot be fulfilled. The error message should contain a human readable description about the error.
+
+### "5": Server Error
+
+A status of "5" indicates that the server is unable to fulfil an otherwise valid request. The error message should contain a human readable description about the error.
+
+### 3.1 Reference: example spartan responses
+
+```
+# Success
+2 text/plain; charset=utf-8
+In a hole in the ground there lived a hobbit. Not
+a nasty, dirty, wet hole, filled with the ends of
+worms and an oozy smell, nor yet a dry, bare...
+
+# Redirect
+3 /new/path/
+
+# Client Error
+4 File "/files/meaning_of_life.txt" not found
+
+# Server Error
+5 Server is experiencing heavy load
+```
+
+## 4 Document Format
+
+The spartan protocol uses gemtext (text/gemini) as its preferred hyperlink document.
+
+### 4.1 Prompt Line
+
+One additional, non-standard line type is defined to support data upload.
+
+```
+=:[<whitespace>]<URL>[<whitespace><USER-FRIENDLY LINK NAME>]
+```
+
+A prompt line should be treated the same as a "=>" link line, except that the client should prompt the user to define data to include as the [data-block] before sending the request. The precise UI for data input is not mandated, but some possible
+ forms might include a text box widget or a file picker widget.
+
+This eliminates the need for gemini's "10 INPUT" response status code, and offers more flexibility to document authors by providing the equivalent of HTML's <form> or gopher's type "7" full-text search.
+
+## 5 URLs
+
+Spartan URLs have the same structure as HTTP URLs.
+
+```
+scheme://userinfo@host:port/path;parameters?query#fragment
+```
+
+The default port for spartan URLs is 300, in reference to Battle of Thermopylae when 300 spartan soldiers stood ground against an invading Persian army.
+
+The userinfo component is allowed but has no special meaning. The host and port should be used to establish the connection, but only the host component should be included in the request line.
+
+The path component should be assumed to use a hierarchical form with traversable path segments. Like HTTP, a path of "/" is equivalent to an empty path. Path components with unicode or non-safe characters must be %-encoded in the spartan request. The fragment component is allowed but has no special meaning.
+
+The query component should be %-decoded and used as the data-block for the request. Query parameters ("key=value" pairs) have no special meaning.
+
+### 5.1 Reference: mapping URLs to spartan requests
+
+```
+URL                                  Request
+---                                  -------
+spartan://example.com                "example.com / 0"
+spartan://example.com/               "example.com / 0"
+spartan://example.com:3000/          "example.com / 0"
+spartan://example.com/#about         "example.com / 0"
+spartan://anon@example.com/          "example.com / 0"
+spartan://127.0.0.1/                 "127.0.0.1 / 0"
+spartan://[::1]/                     "[::1] / 0"
+spartan://examplé.com/               "xn--exampl-dma.com / 0"
+spartan://example.com/my%20file.txt  "example.com /my%20file.txt 0"
+spartan://example.com/café.txt       "example.com /caf%C3%A9.txt 0"
+spartan://example.com?a=1&b=2        "example.com / 7
+                                      a=1&b=2"
+spartan://example.com?hello%20world  "example.com / 11
+                                      hello world"
+```
+
+## Appendix A. Full BNF Grammar
+
+```
+request           = request-line [data-block]
+request-line      = host SP path-absolute SP content-length CRLF
+
+reply             = success / redirect / client-error / server-error
+
+success           = '2' SP mimetype      CRLF body
+redirect          = '3' SP path-absolute CRLF
+client-error      = '4' SP errormsg      CRLF
+server-error      = '5' SP errormsg      CRLF
+
+content-length    = 1*DIGIT
+data-block        = *OCTET
+
+mimetype          = type '/' subtype *(';' parameter)
+body              = *OCTET
+errormsg          = 1*(WSP / VCHAR)
+
+; host            from RFC 3986
+; path-absolute   from RFC 3986, excluding empty string ""
+
+; type            from RFC 2045
+; subtype         from RFC 2045
+; parameter       from RFC 2045
+
+; CRLF            from RFC 5234
+; DIGIT           from RFC 5234
+; OCTET           from RFC 5234
+; SP              from RFC 5234
+; WSP             from RFC 5234
+; VCHAR           from RFC 5234
+```
+
+## Appendix B: Origin of the "spartan" name
+
+The name is a reference to the creator's alma mater of Michigan State University and their mascot, the fighting spartans. This is an homage to the gopher:// protocol, which was likewise named after fellow Big 10 University of Minnesota's gopher mascot.
+
+In greek mythology, the gemini constellation is associated with the twins Castor and Pollox. Pollux was the son of Zeus, while Castor was the son of Tyndareus, the king of Sparta. When Castor died, because he was mortal, Pollux begged his father Zeus to give Castor immortality, and he did, by uniting them together in the heavens. Take from that what you will.
+
+The word "spartan" also has the following meaning in common English:
+
+> adjective: marked by strict self-discipline or self-denial.
+> adjective: marked by simplicity, frugality, or avoidance of luxury and comfort.
+
+This definition has no bearing on the protocol whatsoever. Nope, none at all. Total coincidence.
+
+The official emoji logo for the spartan protocol is the flexed biceps 💪.
+
+## Appendix C: Document History
+
+### 2021-03-24
+
+Initial version published.
+
+### 2021-07-11
+
+Re-wrote the overview section.
