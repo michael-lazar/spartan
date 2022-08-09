@@ -6,7 +6,7 @@
 >
 > Spartan is not opinionated about how or what you use it for, only that you have fun doing so!
 
-This repo hosts the "official" spartan specification. This site is also available online at the following locations:
+This repo hosts the official spartan specification. This site is also available online at the following locations:
 
 - [gemini://spartan.mozz.us](gemini://spartan.mozz.us)
 - [spartan://spartan.mozz.us](spartan://spartan.mozz.us) ([http proxy](https://portal.mozz.us/spartan/spartan.mozz.us))
